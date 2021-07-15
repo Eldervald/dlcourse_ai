@@ -28,9 +28,13 @@ def check_gradient(f, x, delta=1e-5, tol=1e-4):
         ix = it.multi_index
         analytic_grad_at_ix = analytic_grad[ix]
         numeric_grad_at_ix = 0
-
-        # TODO Copy from previous assignment
-        raise Exception("Not implemented!")
+        
+        x[ix] -= delta
+        f_neg, _ = f(x)
+        x[ix] += 2 * delta
+        f_pos, _ = f(x)
+        numeric_grad_at_ix = (f_pos - f_neg) / (2 * delta)
+        x[ix] -= delta
 
         if not np.isclose(numeric_grad_at_ix, analytic_grad_at_ix, tol):
             print("Gradients are different at %s. Analytic: %2.5f, Numeric: %2.5f" % (
@@ -62,7 +66,7 @@ def check_layer_gradient(layer, x, delta=1e-5, tol=1e-4):
     def helper_func(x):
         output = layer.forward(x)
         loss = np.sum(output * output_weight)
-        d_out = np.ones_like(output) * output_weight
+        d_out = output_weight.copy()
         grad = layer.backward(d_out)
         return loss, grad
 
